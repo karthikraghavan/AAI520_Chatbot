@@ -7,6 +7,8 @@ from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.embeddings.openai import OpenAIEmbeddings
+from sentence_transformers import SentenceTransformer
+from langchain.embeddings import HuggingFaceEmbeddings
 from langserve import add_routes
 from pathlib import Path
 from dotenv import load_dotenv
@@ -81,7 +83,14 @@ logging.info(documents[:5])
 logging.info("Creating embedding.")
 
 # Create embeddings and vector store
-embeddings = OpenAIEmbeddings()
+#embeddings = OpenAIEmbeddings()
+# Load a local embedding model
+# Initialize the SentenceTransformer model
+model_name = 'all-MiniLM-L6-v2'
+sentence_transformer_model = SentenceTransformer(model_name)
+
+# Wrap the SentenceTransformer model with LangChain's HuggingFaceEmbeddings
+embeddings = HuggingFaceEmbeddings(model_name=model_name)
 db = Chroma.from_documents(documents, embeddings)
 retriever = db.as_retriever()
 
