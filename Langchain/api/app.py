@@ -67,7 +67,7 @@ def squad1_json_to_dataframe(file_path, record_path=['data', 'paragraphs', 'qas'
     return data.reset_index(drop=True)
 
 # Load the SQuAD dataset
-file_path = os.getenv("SQUAD_DATASET_PATH", "../../train-v1.1.json")
+file_path = os.getenv("SQUAD_DATASET_PATH", "train-v1.1.json")
 df = squad1_json_to_dataframe(file_path, record_path=['data', 'paragraphs', 'qas', 'answers'])
 df_context = pd.DataFrame(df['context'].unique(), columns=['context'])
 

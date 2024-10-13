@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO,
 def get_ollama_response(input_text):
     logging.info(f"response: {input_text}")
     response = requests.post(
-        "http://20.42.11.29:8501/bot/invoke",
+        "http://localhost:8000/bot/invoke",
         json={'input': {'input': input_text}}
     )
     logging.info("I am here")
