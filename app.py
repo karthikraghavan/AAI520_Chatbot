@@ -18,6 +18,9 @@ import json
 import os
 import numpy as np
 import logging  # Import the logging module
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO,
