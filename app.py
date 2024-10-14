@@ -6,7 +6,6 @@ from langchain_community.document_loaders import DataFrameLoader
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.embeddings.openai import OpenAIEmbeddings
 from sentence_transformers import SentenceTransformer
 from langchain.embeddings import HuggingFaceEmbeddings
 from langserve import add_routes
@@ -16,11 +15,16 @@ import uvicorn
 import pandas as pd
 import json
 import os
+import torch
 import numpy as np
 import logging  # Import the logging module
+
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
+# Ensure the model is on GPU if available
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO,
@@ -91,7 +95,7 @@ logging.info("Creating embedding.")
 # Load a local embedding model
 # Initialize the SentenceTransformer model
 model_name = 'all-MiniLM-L6-v2'
-sentence_transformer_model = SentenceTransformer(model_name)
+sentence_transformer_model = SentenceTransformer(model_name).to(device)
 
 # Wrap the SentenceTransformer model with LangChain's HuggingFaceEmbeddings
 embeddings = HuggingFaceEmbeddings(model_name=model_name)
