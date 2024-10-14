@@ -1,2 +1,2 @@
 libsqlite3-dev
-sqlite3==3.45.3
+sqlite3=3.45.3
