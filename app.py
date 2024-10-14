@@ -67,7 +67,8 @@ def squad1_json_to_dataframe(file_path, record_path=['data', 'paragraphs', 'qas'
     return data.reset_index(drop=True)
 
 # Load the SQuAD dataset
-file_path = os.getenv("SQUAD_DATASET_PATH", "train-v1.1.json")
+#file_path = os.getenv("SQUAD_DATASET_PATH", "train-v1.1.json")
+file_path = "train-v1.1.json"
 df = squad1_json_to_dataframe(file_path, record_path=['data', 'paragraphs', 'qas', 'answers'])
 df_context = pd.DataFrame(df['context'].unique(), columns=['context'])
 
@@ -93,9 +94,13 @@ sentence_transformer_model = SentenceTransformer(model_name)
 embeddings = HuggingFaceEmbeddings(model_name=model_name)
 db = Chroma.from_documents(documents, embeddings)
 retriever = db.as_retriever()
-
+# FAISS
 # Define the LLM and prompt template
-llm = Ollama(model="llama2")
+llm = Ollama(model="llama2") # GPT from Rene
+#llm = model('ReneGPT')
+
+# ReneGPT - GPT2 - fine tuning SQAD on top of GPT
+
 prompt = ChatPromptTemplate.from_template("""
 Answer the following question based only on the provided context from Stanford Question Answer database. 
 Think step by step before providing a detailed answer. 
