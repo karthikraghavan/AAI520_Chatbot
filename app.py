@@ -7,7 +7,7 @@ from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from sentence_transformers import SentenceTransformer
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langserve import add_routes
 from pathlib import Path
 from dotenv import load_dotenv
@@ -19,9 +19,6 @@ import torch
 import numpy as np
 import logging  # Import the logging module
 
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Ensure the model is on GPU if available
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -101,9 +98,11 @@ sentence_transformer_model = SentenceTransformer(model_name).to(device)
 embeddings = HuggingFaceEmbeddings(model_name=model_name)
 db = Chroma.from_documents(documents, embeddings)
 retriever = db.as_retriever()
-# FAISS
+
 # Define the LLM and prompt template
-llm = Ollama(model="llama2") # GPT from Rene
+logging.info("initialize model and prompt.")
+
+llm = Ollama(model="orca-mini") 
 #llm = model('ReneGPT')
 
 # ReneGPT - GPT2 - fine tuning SQAD on top of GPT
@@ -133,7 +132,7 @@ app = FastAPI(
 )
 
 
-@app.post("/bot/invoke")
+@app.post("/")
 async def get_response(input: dict):
     try:
         logging.info(f'got a request: {input}')
@@ -151,9 +150,9 @@ async def get_response(input: dict):
         logging.error(f"Error generating response: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":
-    logging.info("Starting FastAPI server at http://localhost:8000")
-    uvicorn.run(app, host="localhost", port=8000)
+#if __name__ == "__main__":
+ #   logging.info("Starting FastAPI server at http://localhost:8000")
+  #  uvicorn.run(app, host="localhost", port=8000)
 
 
 

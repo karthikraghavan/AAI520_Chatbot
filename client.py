@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO,
 def get_ollama_response(input_text):
     logging.info(f"response: {input_text}")
     response = requests.post(
-        "http://localhost:8000/bot/invoke",
+        "http://localhost:8000/",
         json={'input': {'input': input_text}}
     )
     logging.info("I am here")
@@ -26,7 +26,7 @@ def get_ollama_response(input_text):
 st.title('Chatbot using Langchain, Ollama and OpenAI API')
 
 # Get user inputs
-input_text = st.text_input("Ask a question about the SQuAD dataset context")
+input_text = st.text_input("Ask a question")
 
 # Show response for input_text
 if input_text:
