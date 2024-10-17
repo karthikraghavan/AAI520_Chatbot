@@ -21,7 +21,11 @@ import logging  # Import the logging module
 
 
 # Ensure the model is on GPU if available
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# Check if MPS is available
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO,
@@ -84,31 +88,35 @@ logging.info("split documents into chunks.")
 # Split documents into chunks
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 documents = text_splitter.split_documents(docs)
-logging.info(documents[:5])
+
 logging.info("Creating embedding.")
 
 # Create embeddings and vector store
 #embeddings = OpenAIEmbeddings()
 # Load a local embedding model
 # Initialize the SentenceTransformer model
-model_name = 'all-MiniLM-L6-v2'
-sentence_transformer_model = SentenceTransformer(model_name).to(device)
+#model_name = 'all-MiniLM-L6-v2'
+#sentence_transformer_model = SentenceTransformer(model_name)
 
 # Wrap the SentenceTransformer model with LangChain's HuggingFaceEmbeddings
-embeddings = HuggingFaceEmbeddings(model_name=model_name)
+embeddings = HuggingFaceEmbeddings()
+logging.info("Loading to vector db")
+
 db = Chroma.from_documents(documents, embeddings)
+
+logging.info("initialize retriever")
 retriever = db.as_retriever()
 
 # Define the LLM and prompt template
 logging.info("initialize model and prompt.")
 
 llm = Ollama(model="orca-mini") 
-#llm = model('ReneGPT')
+#llm = Ollama(model="llama2") 
 
-# ReneGPT - GPT2 - fine tuning SQAD on top of GPT
+
 
 prompt = ChatPromptTemplate.from_template("""
-Answer the following question based only on the provided context from Stanford Question Answer database. 
+Answer the following question based only on the provided context. 
 Think step by step before providing a detailed answer. 
 <context>
 {context} 
@@ -117,12 +125,16 @@ Question: {input}""")
 
 logging.info(prompt)
 
-logging.info("creating retrieval chains.")
+logging.info("creating document chains.")
 
 document_chain=create_stuff_documents_chain(llm, prompt)
 
+logging.info("creating retrieval chains.")
+
 # Create the retrieval-based document chain
 retrieval_chain = create_retrieval_chain(retriever, document_chain)
+
+logging.info("initialize FAST api.")
 
 # Define the FastAPI app
 app = FastAPI(
@@ -150,9 +162,9 @@ async def get_response(input: dict):
         logging.error(f"Error generating response: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-#if __name__ == "__main__":
- #   logging.info("Starting FastAPI server at http://localhost:8000")
-  #  uvicorn.run(app, host="localhost", port=8000)
+if __name__ == "__main__":
+    logging.info("Starting FastAPI server at http://localhost:8000")
+    uvicorn.run(app, host="localhost", port=8000)
 
 
 

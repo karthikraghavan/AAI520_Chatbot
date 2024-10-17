@@ -1,53 +1,52 @@
 import streamlit as st
 import requests
 from PIL import Image
-import logging  # Import the logging module
+import logging 
+import base64
+from io import BytesIO
 
 # Set up the Streamlit app configuration
-st.set_page_config(page_title="Chatbot Application", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="Chatbot Application", layout="centered")
 
 # Custom CSS to style the background and text elements
 st.markdown(
     """
     <style>
-    body {
-        background-color: white;
-    }
-    .main {
+    div {
         background-color: lightblue;
     }
-    .stTextInput, .stTextArea {
-        background-color: white;
-    }
-    .stButton button {
-        background-color: darkblue;
-        color: white;
-    }
-    .stButton button:hover {
-        background-color: navy;
-        color: white;
-    }
-    .title {
+    
+    h1 {
         color: darkred; /* Change title color */
         text-align: center; /* Center the title */
     }
-    .center-logo {
-        display: flex;
-        justify-content: center;
-    }
-    </style>
+    .stTextInput div[role="textbox"] > div::after {
+        background: none !important;
+    """,
+    unsafe_allow_html=True
+)
+# border:1px solid black;
+logo = Image.open("usd-logo.png")  
+
+# Convert image to base64 for embedding
+buffered = BytesIO()
+logo.save(buffered, format="PNG")
+logo_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+# Use custom HTML for side-by-side alignment with base64 image
+st.markdown(
+    f"""
+    <div style="display: flex; align-items: center;">
+        <img src="data:image/png;base64,{logo_base64}" style="width: 75px; margin-right: 10px;">
+        <h1 style="margin: 0;">SQUAD Chatbot</h1>
+    </div>
     """,
     unsafe_allow_html=True
 )
 
-# Center the logo by using the custom CSS class
-logo = Image.open("usd-logo.png")  # Replace with your logo path
-st.markdown('<div class="center-logo">', unsafe_allow_html=True)
-st.image(logo, width=200)
-st.markdown('</div>', unsafe_allow_html=True)
+
 
 # Display the title of the chatbot app with custom color
-st.markdown('<h1 class="title">Chatbot Application</h1>', unsafe_allow_html=True)
 st.write("Ask me anything, and I'll try my best to answer!")
 
 
