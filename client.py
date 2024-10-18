@@ -58,7 +58,7 @@ logging.basicConfig(level=logging.INFO,
 def get_ollama_response(input_text):
     logging.info(f"response: {input_text}")
     response = requests.post(
-        "https://karthikraghav-squadchatapi.hf.space/",
+        "https://karthikraghav-squadapi.hf.space/",
         json={'input': {'input': input_text}}
     )
     logging.info("I am here")
