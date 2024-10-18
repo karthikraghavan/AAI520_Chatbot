@@ -61,9 +61,6 @@ async def get_response(input: dict):
         logging.error(f"Error generating response: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":
-    logging.info("Starting FastAPI server at http://localhost:8000")
-    uvicorn.run(app, host="localhost", port=8000)
 
 
 
